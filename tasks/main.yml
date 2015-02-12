@@ -1,0 +1,22 @@
+---
+
+- name: main | Check if first boot file exists
+  stat:
+    path="{{ jenkins_remotedeploy_first_boot_file }}"
+  register: first_boot_stat
+
+- name:  main | trigger jenkins job
+  jenkins_trigger: 
+     name="{{ jenkins_remotedeploy_job }}"
+     url="{{ jenkins_remotedeploy_url }}"
+  args:
+    parm:
+        "{{ jenkins_remotedeploy_parameters }}"
+  delegate_to: 127.0.0.1
+  sudo: false
+  when: not first_boot_stat.stat.exists  or jenkins_remotedeploy_force
+
+- name: main | Touch file guard
+  copy:
+    content=""
+    dest="{{ jenkins_remotedeploy_first_boot_file }}"
