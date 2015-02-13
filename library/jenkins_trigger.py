@@ -88,8 +88,14 @@ class JenkinTrigger():
 
         try:
             J.build_job(self.job_name, self.jenkins_parm)
+        except jenkinsapi.custom_exceptions.WillNotBuild:
+            self.module.exit_json(changed=False, msg="Job is already triggered.", job_name=self.job_name,
+                                  jenkins_url=self.jenkins_url)
         except jenkinsapi.custom_exceptions.UnknownJob:
             self.module.fail_json(msg="Job '{}' does not exist on '{}'".format(self.job_name, self.jenkins_url))
+
+        self.module.exit_json(changed=True, msg="Job triggered.", job_name=self.job_name, jenkins_url=self.jenkins_url)
+
 
         self.module.exit_json(changed=True, msg="Job triggered.", job_name=self.job_name, jenkins_url=self.jenkins_url)
 
